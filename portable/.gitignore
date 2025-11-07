@@ -1,0 +1,14 @@
+# Monica Portable - Git Ignore
+
+# PHP Installation (zu groß für Git)
+php/
+
+# Backups (persönliche Daten)
+backups/
+
+# Log files
+*.log
+
+# Temporäre Dateien
+*.tmp
+*.temp
