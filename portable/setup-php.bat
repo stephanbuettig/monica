@@ -122,9 +122,32 @@ if not exist "%PHP_DIR%\php.ini" (
     )
 )
 
+REM Setze extension_dir auf lokalen Pfad (WICHTIG!)
+echo Konfiguriere extension_dir...
+powershell -Command "$ini = Get-Content '%PHP_DIR%\php.ini'; if ($ini -match '^extension_dir') { $ini = $ini -replace '^extension_dir.*', 'extension_dir = \"ext\"' } else { $ini = @('extension_dir = \"ext\"') + $ini }; $ini | Set-Content '%PHP_DIR%\php.ini'"
+
 REM Aktiviere benoetigte Extensions
 echo Aktiviere PHP Extensions...
 powershell -Command "(Get-Content '%PHP_DIR%\php.ini') -replace ';extension=fileinfo', 'extension=fileinfo' -replace ';extension=intl', 'extension=intl' -replace ';extension=mbstring', 'extension=mbstring' -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite' -replace ';extension=sqlite3', 'extension=sqlite3' -replace ';extension=openssl', 'extension=openssl' -replace ';extension=curl', 'extension=curl' -replace ';extension=gd', 'extension=gd' | Set-Content '%PHP_DIR%\php.ini'"
+
+REM Erhoehe memory_limit fuer Composer
+echo Erhoehe Memory Limit...
+powershell -Command "(Get-Content '%PHP_DIR%\php.ini') -replace '^memory_limit.*', 'memory_limit = 512M' | Set-Content '%PHP_DIR%\php.ini'"
+
+REM Setze max_execution_time
+echo Setze Max Execution Time...
+powershell -Command "(Get-Content '%PHP_DIR%\php.ini') -replace '^max_execution_time.*', 'max_execution_time = 300' | Set-Content '%PHP_DIR%\php.ini'"
+
+echo.
+echo Pruefe PHP Konfiguration...
+echo.
+echo Extension Directory:
+"%PHP_DIR%\php.exe" -r "echo ini_get('extension_dir');"
+echo.
+echo.
+
+echo Geladene Extensions:
+"%PHP_DIR%\php.exe" -m | findstr /C:"sqlite" /C:"pdo_sqlite" /C:"mbstring" /C:"intl" /C:"curl" /C:"fileinfo"
 
 echo.
 echo ========================================
@@ -134,7 +157,8 @@ echo.
 echo PHP Version:
 "%PHP_DIR%\php.exe" -v
 echo.
-echo Sie koennen jetzt Monica mit start-monica.bat starten!
+echo WICHTIG: Fuehren Sie nun setup-composer.bat aus,
+echo um die Monica-Abhaengigkeiten zu installieren!
 echo.
 
 :end

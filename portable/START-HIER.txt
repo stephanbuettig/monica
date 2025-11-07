@@ -8,7 +8,7 @@
 ╚═══════════════════════════════════════════════════════════════════╝
 
 
-🚀 SCHNELLSTART IN 2 SCHRITTEN
+🚀 SCHNELLSTART IN 3 SCHRITTEN
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
   SCHRITT 1: PHP Setup (nur beim ersten Mal)
@@ -18,10 +18,22 @@
 
      - Folgen Sie den Anweisungen auf dem Bildschirm
      - PHP wird automatisch heruntergeladen
+     - PHP Extensions werden aktiviert
      - Dauert ca. 2-5 Minuten
 
 
-  SCHRITT 2: Monica starten
+  SCHRITT 2: Composer & Dependencies (nur beim ersten Mal)
+  ═══════════════════════════════════════════
+
+  📌 Doppelklick auf:  setup-composer.bat
+
+     - Composer wird heruntergeladen
+     - Alle Monica-Abhängigkeiten werden installiert
+     - Internetverbindung erforderlich!
+     - Dauert ca. 5-15 Minuten
+
+
+  SCHRITT 3: Monica starten
   ═══════════════════════════════════════════
 
   📌 Doppelklick auf:  start-monica.bat
@@ -38,16 +50,22 @@
 📁 DATEI-ÜBERSICHT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  🟢 HAUPTDATEIEN (das brauchen Sie meistens):
+  🔴 SETUP (nur beim ersten Mal):
+
+     setup-php.bat        📥 PHP installieren (Schritt 1)
+     setup-composer.bat   📦 Dependencies installieren (Schritt 2)
+
+
+  🟢 HAUPTDATEIEN (tägliche Nutzung):
 
      start-monica.bat     ⭐ Monica starten (Hauptdatei!)
      start.html           🌐 Alternative: Browser-Launcher
      maintenance.bat      🔧 Wartungs-Menü (Backup, Optimierung, etc.)
 
 
-  🔵 SETUP & KONFIGURATION:
+  🔵 DOKUMENTATION:
 
-     setup-php.bat        📥 PHP installieren/konfigurieren
+     SCHNELLSTART.txt     🚀 Schnellstart-Anleitung (NEU!)
      SETUP.md             📖 Ausführliche Setup-Anleitung
      README.md            📚 Vollständiges Benutzerhandbuch
 
@@ -88,8 +106,17 @@
 🆘 PROBLEMLÖSUNG
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Problem: "PHP wurde nicht gefunden"
-  ➜ Lösung: Führen Sie setup-php.bat aus
+  Problem: "PHP Extensions können nicht geladen werden"
+  ➜ Lösung: setup-php.bat ERNEUT ausführen
+            (setzt extension_dir korrekt)
+
+  Problem: "vendor/autoload.php nicht gefunden"
+  ➜ Lösung: setup-composer.bat ausführen und warten
+
+  Problem: "Composer Install schlägt fehl"
+  ➜ Lösung: 1. Internetverbindung prüfen
+            2. Als Administrator ausführen
+            3. Andere Programme schließen (mehr RAM)
 
   Problem: Port bereits belegt
   ➜ Lösung: Wird automatisch gelöst (versucht Port 8001)
@@ -103,6 +130,8 @@
 
   Problem: Irgendetwas funktioniert nicht mehr
   ➜ Lösung: maintenance.bat → Option [6] System-Informationen prüfen
+
+  ⭐ TIPP: Siehe SCHNELLSTART.txt für detaillierte Problemlösungen!
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
