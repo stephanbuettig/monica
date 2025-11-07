@@ -17,132 +17,114 @@ set PHP_DIR=%SCRIPT_DIR%php
 set PHP_EXE=%PHP_DIR%\php.exe
 set COMPOSER_PHAR=%SCRIPT_DIR%composer.phar
 
-REM Zeige Pfade zur Verifizierung
-echo Verzeichnis-Informationen:
-echo ========================
-echo Script-Verzeichnis: %SCRIPT_DIR%
-echo Monica-Verzeichnis: %APP_ROOT%
+echo Dieses Script arbeitet mit RELATIVEN Pfaden.
+echo Es ist egal, wo der Monica-Ordner liegt!
+echo.
+echo Erwartete Struktur:
+echo   monica-projekt\
+echo   ├── portable\
+echo   │   ├── composer.phar          <- HIER muss composer.phar sein
+echo   │   ├── setup-composer-manual.bat
+echo   │   └── php\
+echo   └── composer.json              <- Ein Ordner hoeher
 echo.
 
-REM Prüfe ob wir im richtigen Verzeichnis sind
+REM Prüfe Struktur
+set ERRORS=0
+
 if not exist "%APP_ROOT%\composer.json" (
-    echo WARNUNG: composer.json nicht im Monica-Verzeichnis gefunden!
-    echo Erwartet in: %APP_ROOT%\composer.json
-    echo.
-    echo Sind Sie im richtigen Ordner?
-    echo Dieses Script MUSS aus dem portable\ Unterordner
-    echo des Monica-Projekts ausgefuehrt werden!
-    echo.
-    pause
+    echo [FEHLER] composer.json nicht gefunden im Elternverzeichnis!
+    echo          Erwarteter relativer Pfad: ..\composer.json
+    set ERRORS=1
+) else (
+    echo [OK] composer.json gefunden: ..\composer.json
 )
 
-REM Prüfe ob PHP installiert ist
 if not exist "%PHP_EXE%" (
-    echo FEHLER: PHP nicht gefunden!
-    echo Erwartet in: %PHP_EXE%
+    echo [FEHLER] PHP nicht gefunden!
+    echo          Erwarteter relativer Pfad: .\php\php.exe
+    echo          Bitte fuehren Sie zuerst setup-php.bat aus.
+    set ERRORS=1
+) else (
+    echo [OK] PHP gefunden: .\php\php.exe
+)
+
+if not exist "%COMPOSER_PHAR%" (
+    echo [FEHLER] composer.phar nicht gefunden!
+    echo          Erwarteter relativer Pfad: .\composer.phar
     echo.
-    echo Bitte fuehren Sie zuerst setup-php.bat aus.
+    echo          WICHTIG: Speichern Sie composer.phar direkt in:
+    echo          portable\composer.phar
+    echo          (im gleichen Ordner wie dieses Script!)
+    set ERRORS=1
+) else (
+    echo [OK] composer.phar gefunden: .\composer.phar
+)
+
+echo.
+
+if %ERRORS% gtr 0 (
+    echo ========================================
+    echo  SETUP ERFORDERLICH
+    echo ========================================
+    echo.
+    goto :download_instructions
+)
+
+echo Alle erforderlichen Dateien gefunden!
+echo Bereit zur Installation...
+echo.
+goto :install_dependencies
+
+:download_instructions
+echo ========================================
+echo  COMPOSER HERUNTERLADEN
+echo ========================================
+echo.
+echo 1. Oeffnen Sie im Browser:
+echo    https://getcomposer.org/composer.phar
+echo.
+echo 2. Speichern Sie die Datei als "composer.phar" in:
+echo    portable\composer.phar
+echo    (im gleichen Ordner wie dieses Script!)
+echo.
+echo 3. Fuehren Sie dieses Script erneut aus
+echo.
+
+choice /C JN /M "Soll ich versuchen, composer.phar mit curl herunterzuladen"
+if errorlevel 2 (
+    echo.
+    echo Bitte laden Sie composer.phar manuell herunter.
     pause
     exit /b 1
 )
 
-echo Diese Anleitung hilft Ihnen, Composer manuell zu installieren.
 echo.
-echo WICHTIG: composer.phar muss in diesem Ordner gespeichert werden:
-echo %SCRIPT_DIR%
-echo.
+echo Versuche Download mit curl...
+curl -sS https://getcomposer.org/installer -o "%TEMP%\composer-setup.php"
 
-REM Prüfe ob composer.phar bereits vorhanden
-if exist "%COMPOSER_PHAR%" (
-    echo [OK] Composer.phar wurde gefunden!
-    echo Vollstaendiger Pfad: %COMPOSER_PHAR%
-    echo.
-
-    REM Prüfe ob composer.json auch existiert
-    if not exist "%APP_ROOT%\composer.json" (
-        echo [FEHLER] composer.json NICHT gefunden!
-        echo Erwartet in: %APP_ROOT%\composer.json
-        echo.
-        echo Das bedeutet, dass Sie vermutlich im FALSCHEN Ordner sind!
-        echo.
-        echo RICHTIG: monica-claude-monica-...\portable\composer.phar
-        echo FALSCH:   CRM\portable\composer.phar
-        echo.
-        echo Bitte verschieben Sie composer.phar in den richtigen Ordner:
-        echo %SCRIPT_DIR%
-        echo.
-        pause
-        exit /b 1
-    )
-
-    goto :install_dependencies
-) else (
-    echo [!] Composer.phar wurde NICHT gefunden.
-    echo Erwartet in: %COMPOSER_PHAR%
-    echo.
+if errorlevel 1 (
+    echo Curl-Download fehlgeschlagen.
+    echo Bitte laden Sie composer.phar manuell herunter.
+    pause
+    exit /b 1
 )
 
-echo ========================================
-echo  OPTION 1: Direkter Download (Empfohlen)
-echo ========================================
-echo.
-echo 1. Oeffnen Sie im Browser:
-echo    https://getcomposer.org/download/
-echo.
-echo 2. Klicken Sie auf "Download Composer (executable)"
-echo    oder laden Sie direkt herunter:
-echo    https://getcomposer.org/composer.phar
-echo.
-echo 3. Speichern Sie die Datei als "composer.phar" in:
-echo    %SCRIPT_DIR%
-echo.
-echo 4. Druecken Sie danach eine Taste um fortzufahren
-echo.
-pause
+echo Installiere Composer...
+"%PHP_EXE%" "%TEMP%\composer-setup.php" --install-dir="%SCRIPT_DIR%" --filename=composer.phar
+del "%TEMP%\composer-setup.php" 2>nul
 
-REM Prüfe erneut
 if not exist "%COMPOSER_PHAR%" (
-    echo.
-    echo ========================================
-    echo  OPTION 2: Mit curl herunterladen
-    echo ========================================
-    echo.
-    echo Falls Sie curl haben, versuchen wir den Download...
-    echo.
-
-    curl -sS https://getcomposer.org/installer -o "%TEMP%\composer-setup.php"
-
-    if errorlevel 1 (
-        echo Curl-Download fehlgeschlagen.
-        goto :manual_only
-    )
-
-    echo Installiere Composer...
-    "%PHP_EXE%" "%TEMP%\composer-setup.php" --install-dir="%SCRIPT_DIR%" --filename=composer.phar
-    del "%TEMP%\composer-setup.php" 2>nul
-
-    if not exist "%COMPOSER_PHAR%" (
-        goto :manual_only
-    )
-
-    echo Composer erfolgreich installiert!
-    goto :install_dependencies
+    echo Installation fehlgeschlagen.
+    echo Bitte laden Sie composer.phar manuell herunter.
+    pause
+    exit /b 1
 )
 
-:manual_only
+echo Composer erfolgreich installiert!
 echo.
-echo Composer konnte nicht automatisch installiert werden.
-echo.
-echo Bitte laden Sie composer.phar manuell herunter:
-echo  1. Browser: https://getcomposer.org/composer.phar
-echo  2. Datei speichern in: %SCRIPT_DIR%
-echo  3. Dieses Script erneut ausfuehren
-echo.
-pause
-exit /b 1
 
 :install_dependencies
-echo.
 echo ========================================
 echo  Monica Dependencies installieren
 echo ========================================
@@ -150,38 +132,37 @@ echo.
 
 cd /d "%APP_ROOT%"
 
-if not exist "composer.json" (
-    echo FEHLER: composer.json nicht gefunden!
-    pause
-    exit /b 1
-)
-
 echo ACHTUNG: Dies kann 5-15 Minuten dauern!
-echo Bitte haben Sie Geduld...
+echo Schliessen Sie das Fenster NICHT!
 echo.
 pause
 
-REM Setze Composer Variablen
-set COMPOSER_HOME=%SCRIPT_DIR%\.composer
-set COMPOSER_CACHE_DIR=%SCRIPT_DIR%\.composer\cache
+REM Setze Composer Variablen (relativ!)
+set COMPOSER_HOME=%SCRIPT_DIR%.composer
+set COMPOSER_CACHE_DIR=%SCRIPT_DIR%.composer\cache
 
 if not exist "%COMPOSER_HOME%" mkdir "%COMPOSER_HOME%"
 if not exist "%COMPOSER_CACHE_DIR%" mkdir "%COMPOSER_CACHE_DIR%"
 
-echo Starte Installation...
+echo Starte Composer Install...
+echo Fortschritt wird unten angezeigt:
 echo.
 
 "%PHP_EXE%" "%COMPOSER_PHAR%" install --no-dev --optimize-autoloader --no-interaction
 
 if errorlevel 1 (
     echo.
-    echo FEHLER: Composer Install fehlgeschlagen!
+    echo ========================================
+    echo  FEHLER!
+    echo ========================================
     echo.
-    echo Versuchen Sie:
+    echo Composer Install ist fehlgeschlagen!
+    echo.
+    echo Moegliche Loesungen:
     echo  1. Als Administrator ausfuehren
     echo  2. Antivirenprogramm temporaer deaktivieren
     echo  3. Internetverbindung pruefen
-    echo  4. Anderen Browser fuer Download versuchen
+    echo  4. Andere Programme schliessen (mehr RAM)
     echo.
     pause
     exit /b 1
@@ -193,7 +174,7 @@ echo  Installation erfolgreich!
 echo ========================================
 echo.
 
-if exist "vendor\autoload.php" (
+if exist "%APP_ROOT%\vendor\autoload.php" (
     echo [OK] vendor\autoload.php gefunden
     echo.
     echo Monica ist jetzt bereit!

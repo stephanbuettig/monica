@@ -65,7 +65,8 @@
 
   🔵 DOKUMENTATION:
 
-     SCHNELLSTART.txt     🚀 Schnellstart-Anleitung (NEU!)
+     WO-LIEGT-WAS.txt     📁 Dateistruktur & Pfade erklärt (NEU!)
+     SCHNELLSTART.txt     🚀 Schnellstart-Anleitung
      SETUP.md             📖 Ausführliche Setup-Anleitung
      README.md            📚 Vollständiges Benutzerhandbuch
 

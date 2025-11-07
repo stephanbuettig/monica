@@ -17,9 +17,14 @@ set PHP_DIR=%SCRIPT_DIR%php
 set PHP_EXE=%PHP_DIR%\php.exe
 set COMPOSER_PHAR=%SCRIPT_DIR%composer.phar
 
-REM Prüfe ob PHP installiert ist
+echo Dieses Script arbeitet mit RELATIVEN Pfaden.
+echo Der Monica-Ordner kann ueberall liegen!
+echo.
+
+REM Prüfe Struktur
 if not exist "%PHP_EXE%" (
-    echo FEHLER: PHP nicht gefunden!
+    echo [FEHLER] PHP nicht gefunden!
+    echo          Relativer Pfad: .\php\php.exe
     echo.
     echo Bitte fuehren Sie zuerst setup-php.bat aus.
     echo.
@@ -27,7 +32,19 @@ if not exist "%PHP_EXE%" (
     exit /b 1
 )
 
-echo PHP gefunden: %PHP_EXE%
+if not exist "%APP_ROOT%\composer.json" (
+    echo [FEHLER] composer.json nicht gefunden!
+    echo          Relativer Pfad: ..\composer.json
+    echo.
+    echo Sind Sie im richtigen Verzeichnis?
+    echo Dieses Script muss aus portable\ ausgefuehrt werden!
+    echo.
+    pause
+    exit /b 1
+)
+
+echo [OK] PHP gefunden: .\php\php.exe
+echo [OK] composer.json gefunden: ..\composer.json
 echo.
 
 REM Prüfe ob Composer bereits vorhanden
