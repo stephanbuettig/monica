@@ -128,7 +128,7 @@ powershell -Command "$ini = Get-Content '%PHP_DIR%\php.ini'; if ($ini -match '^e
 
 REM Aktiviere benoetigte Extensions
 echo Aktiviere PHP Extensions...
-powershell -Command "(Get-Content '%PHP_DIR%\php.ini') -replace ';extension=fileinfo', 'extension=fileinfo' -replace ';extension=intl', 'extension=intl' -replace ';extension=mbstring', 'extension=mbstring' -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite' -replace ';extension=sqlite3', 'extension=sqlite3' -replace ';extension=openssl', 'extension=openssl' -replace ';extension=curl', 'extension=curl' -replace ';extension=gd', 'extension=gd' | Set-Content '%PHP_DIR%\php.ini'"
+powershell -Command "(Get-Content '%PHP_DIR%\php.ini') -replace ';extension=fileinfo', 'extension=fileinfo' -replace ';extension=intl', 'extension=intl' -replace ';extension=mbstring', 'extension=mbstring' -replace ';extension=pdo_sqlite', 'extension=pdo_sqlite' -replace ';extension=sqlite3', 'extension=sqlite3' -replace ';extension=openssl', 'extension=openssl' -replace ';extension=curl', 'extension=curl' -replace ';extension=gd', 'extension=gd' -replace ';extension=zip', 'extension=zip' | Set-Content '%PHP_DIR%\php.ini'"
 
 REM Erhoehe memory_limit fuer Composer
 echo Erhoehe Memory Limit...
@@ -147,7 +147,7 @@ echo.
 echo.
 
 echo Geladene Extensions:
-"%PHP_DIR%\php.exe" -m | findstr /C:"sqlite" /C:"pdo_sqlite" /C:"mbstring" /C:"intl" /C:"curl" /C:"fileinfo"
+"%PHP_DIR%\php.exe" -m | findstr /C:"sqlite" /C:"pdo_sqlite" /C:"mbstring" /C:"intl" /C:"curl" /C:"fileinfo" /C:"zip"
 
 echo.
 echo ========================================

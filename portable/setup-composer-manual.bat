@@ -20,13 +20,42 @@ set COMPOSER_PHAR=%SCRIPT_DIR%composer.phar
 echo Dieses Script arbeitet mit RELATIVEN Pfaden.
 echo Es ist egal, wo der Monica-Ordner liegt!
 echo.
+
+REM Prüfe Pfadlänge (Windows hat ein Limit von ~260 Zeichen)
+set CURRENT_PATH=%CD%
+set PATH_LENGTH=0
+setlocal enabledelayedexpansion
+for /L %%A in (0,1,260) do if "!CURRENT_PATH:~%%A,1!" neq "" set /A PATH_LENGTH=%%A+1
+
+if %PATH_LENGTH% gtr 180 (
+    echo.
+    echo ========================================
+    echo  WARNUNG: Pfad ist zu lang!
+    echo ========================================
+    echo.
+    echo Aktueller Pfad: %CD%
+    echo Laenge: %PATH_LENGTH% Zeichen
+    echo.
+    echo Windows und Git haben Probleme mit langen Pfaden!
+    echo.
+    echo EMPFEHLUNG:
+    echo 1. Benennen Sie den Ordner um zu etwas Kurzem z.B. "monica"
+    echo 2. Verschieben Sie ihn nach C:\monica\
+    echo.
+    echo Beispiel:
+    echo   LANG:  C:\Users\...\Downloads\CRM\monica-claude-...\
+    echo   KURZ:  C:\monica\
+    echo.
+    pause
+)
+
 echo Erwartete Struktur:
 echo   monica-projekt\
-echo   ├── portable\
-echo   │   ├── composer.phar          <- HIER muss composer.phar sein
-echo   │   ├── setup-composer-manual.bat
-echo   │   └── php\
-echo   └── composer.json              <- Ein Ordner hoeher
+echo   +-- portable\
+echo   ^|   +-- composer.phar
+echo   ^|   +-- setup-composer-manual.bat
+echo   ^|   +-- php\
+echo   +-- composer.json
 echo.
 
 REM Prüfe Struktur
@@ -47,6 +76,15 @@ if not exist "%PHP_EXE%" (
     set ERRORS=1
 ) else (
     echo [OK] PHP gefunden: .\php\php.exe
+)
+
+REM Prüfe ZIP Extension
+"%PHP_EXE%" -m | findstr /C:"zip" > nul
+if %errorlevel% neq 0 (
+    echo [WARNUNG] ZIP Extension nicht geladen!
+    echo           Composer benoetigt die ZIP Extension!
+    echo           Bitte fuehren Sie setup-php.bat erneut aus.
+    set ERRORS=1
 )
 
 if not exist "%COMPOSER_PHAR%" (
@@ -159,10 +197,11 @@ if errorlevel 1 (
     echo Composer Install ist fehlgeschlagen!
     echo.
     echo Moegliche Loesungen:
-    echo  1. Als Administrator ausfuehren
-    echo  2. Antivirenprogramm temporaer deaktivieren
-    echo  3. Internetverbindung pruefen
-    echo  4. Andere Programme schliessen (mehr RAM)
+    echo  1. PFAD ZU LANG - Ordner umbenennen und nach C:\monica\ verschieben
+    echo  2. ZIP Extension fehlt - setup-php.bat erneut ausfuehren
+    echo  3. Als Administrator ausfuehren
+    echo  4. Internetverbindung pruefen
+    echo  5. Andere Programme schliessen (mehr RAM)
     echo.
     pause
     exit /b 1
