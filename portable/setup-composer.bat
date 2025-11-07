@@ -54,13 +54,23 @@ echo.
 REM Download Composer Installer
 set COMPOSER_SETUP=%TEMP%\composer-setup.php
 
-powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri 'https://getcomposer.org/installer' -OutFile '%COMPOSER_SETUP%' -UseBasicParsing; Write-Host 'Composer Installer heruntergeladen!'; } catch { Write-Host 'Fehler beim Download!'; exit 1; } }"
+powershell -Command "& { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; try { Invoke-WebRequest -Uri 'https://getcomposer.org/installer' -OutFile '%COMPOSER_SETUP%' -UseBasicParsing; Write-Host 'Composer Installer heruntergeladen!'; } catch { Write-Host 'Fehler beim Download!'; throw } }"
 
 if errorlevel 1 (
     echo.
     echo FEHLER: Composer Download fehlgeschlagen!
     echo.
-    echo Bitte pruefen Sie Ihre Internetverbindung.
+    echo Moegliche Ursachen:
+    echo  - Keine Internetverbindung
+    echo  - Firewall blockiert Download
+    echo  - Proxy-Einstellungen erforderlich
+    echo.
+    echo MANUELLE INSTALLATION:
+    echo  1. Besuchen Sie: https://getcomposer.org/download/
+    echo  2. Laden Sie composer.phar herunter
+    echo  3. Speichern Sie es in: %SCRIPT_DIR%
+    echo  4. Fuehren Sie dieses Script erneut aus
+    echo.
     pause
     exit /b 1
 )
