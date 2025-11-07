@@ -17,9 +17,30 @@ set PHP_DIR=%SCRIPT_DIR%php
 set PHP_EXE=%PHP_DIR%\php.exe
 set COMPOSER_PHAR=%SCRIPT_DIR%composer.phar
 
+REM Zeige Pfade zur Verifizierung
+echo Verzeichnis-Informationen:
+echo ========================
+echo Script-Verzeichnis: %SCRIPT_DIR%
+echo Monica-Verzeichnis: %APP_ROOT%
+echo.
+
+REM Prüfe ob wir im richtigen Verzeichnis sind
+if not exist "%APP_ROOT%\composer.json" (
+    echo WARNUNG: composer.json nicht im Monica-Verzeichnis gefunden!
+    echo Erwartet in: %APP_ROOT%\composer.json
+    echo.
+    echo Sind Sie im richtigen Ordner?
+    echo Dieses Script MUSS aus dem portable\ Unterordner
+    echo des Monica-Projekts ausgefuehrt werden!
+    echo.
+    pause
+)
+
 REM Prüfe ob PHP installiert ist
 if not exist "%PHP_EXE%" (
     echo FEHLER: PHP nicht gefunden!
+    echo Erwartet in: %PHP_EXE%
+    echo.
     echo Bitte fuehren Sie zuerst setup-php.bat aus.
     pause
     exit /b 1
@@ -27,15 +48,37 @@ if not exist "%PHP_EXE%" (
 
 echo Diese Anleitung hilft Ihnen, Composer manuell zu installieren.
 echo.
+echo WICHTIG: composer.phar muss in diesem Ordner gespeichert werden:
+echo %SCRIPT_DIR%
+echo.
 
 REM Prüfe ob composer.phar bereits vorhanden
 if exist "%COMPOSER_PHAR%" (
-    echo Composer.phar wurde bereits gefunden!
-    echo Pfad: %COMPOSER_PHAR%
+    echo [OK] Composer.phar wurde gefunden!
+    echo Vollstaendiger Pfad: %COMPOSER_PHAR%
     echo.
+
+    REM Prüfe ob composer.json auch existiert
+    if not exist "%APP_ROOT%\composer.json" (
+        echo [FEHLER] composer.json NICHT gefunden!
+        echo Erwartet in: %APP_ROOT%\composer.json
+        echo.
+        echo Das bedeutet, dass Sie vermutlich im FALSCHEN Ordner sind!
+        echo.
+        echo RICHTIG: monica-claude-monica-...\portable\composer.phar
+        echo FALSCH:   CRM\portable\composer.phar
+        echo.
+        echo Bitte verschieben Sie composer.phar in den richtigen Ordner:
+        echo %SCRIPT_DIR%
+        echo.
+        pause
+        exit /b 1
+    )
+
     goto :install_dependencies
 ) else (
-    echo Composer.phar wurde NICHT gefunden.
+    echo [!] Composer.phar wurde NICHT gefunden.
+    echo Erwartet in: %COMPOSER_PHAR%
     echo.
 )
 
